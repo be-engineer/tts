@@ -219,13 +219,7 @@ tkinter是Python标准库，通常已内置。
 | 可视化     | ✅        | ❌          |
 | 适合人群   | 所有用户 | 开发者     |
 
-##  详细文档
 
-- **[docs/GUI_V2_GUIDE.md](docs/GUI_V2_GUIDE.md)** - GUI详细使用指南
-- **[docs/EDGE_TTS_GUIDE.md](docs/EDGE_TTS_GUIDE.md)** - Edge TTS技术文档
-- **[docs/VENV_GUIDE.md](docs/VENV_GUIDE.md)** - 虚拟环境使用指南
-- **[docs/PYPI_CONFIG.md](docs/PYPI_CONFIG.md)** - PyPI配置说明
-- **[docs/NETWORK_TROUBLESHOOTING.md](docs/NETWORK_TROUBLESHOOTING.md)** - 网络问题解决方案
 
 ## 🔗 相关资源
 
