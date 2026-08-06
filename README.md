@@ -132,14 +132,6 @@ tts/
 ├── run.bat                 # Windows运行脚本
 ├── requirements.txt        # 依赖列表
 ├── README.md              # 项目说明
-├── docs/                  # 文档目录
-│   ├── README.md          # 文档目录说明
-│   ├── GUI_V2_GUIDE.md    # GUI详细使用指南
-│   ├── EDGE_TTS_GUIDE.md  # Edge TTS技术文档
-│   ├── VENV_GUIDE.md      # 虚拟环境指南
-│   ├── PYPI_CONFIG.md     # PyPI配置说明
-│   ├── STRUCTURE.md       # 项目结构说明
-│   └── NETWORK_TROUBLESHOOTING.md  # 网络问题排查
 ├── txt/                   # 示例文本文件
 └── venv/                  # Python虚拟环境
 ```
