@@ -1,0 +1,7 @@
+{
+  "voice": "云健 (男声)",
+  "rate": "normal",
+  "volume": "normal",
+  "output_dir": "/home/leon/develop/python/tts/txt",
+  "format": "mp3"
+}

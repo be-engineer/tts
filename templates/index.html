@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> 文本语音转换</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #fff;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .header .version {
+            color: #666;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        .card {
+            background: #2d2d44;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-title {
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #404060;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #ccc;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #404060;
+            border-radius: 8px;
+            background: #1a1a2e;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input[type="file"] {
+            display: none;
+        }
+
+        .form-group select:focus {
+            border-color: #0078d4;
+        }
+
+        .form-group select option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        .file-upload {
+            border: 3px dashed #0078d4;
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(0, 120, 212, 0.08);
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .file-upload:hover {
+            border-color: #00a8ff;
+            background: rgba(0, 120, 212, 0.15);
+            transform: scale(1.01);
+            box-shadow: 0 0 20px rgba(0, 120, 212, 0.3);
+        }
+
+        .file-upload.dragover {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+        }
+
+        .file-upload.has-file {
+            border-color: #28a745;
+            background: rgba(40, 167, 69, 0.1);
+            border-style: solid;
+        }
+
+        .file-upload i {
+            font-size: 64px;
+            color: #0078d4;
+            margin-bottom: 15px;
+            display: block;
+            animation: pulse 2s infinite;
+        }
+
+        .file-upload:hover i {
+            color: #00a8ff;
+        }
+
+        .file-upload.has-file i {
+            color: #28a745;
+            animation: none;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 0.6;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .file-upload span {
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            display: block;
+        }
+
+        .file-upload small {
+            color: #0078d4;
+            font-size: 14px;
+            margin-top: 10px;
+            display: block;
+        }
+
+        .file-upload.has-file span {
+            color: #28a745;
+        }
+
+        .file-upload.has-file small {
+            color: #28a745;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            background: #1a1a2e;
+            border: 1px solid #404060;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 100px;
+            justify-content: center;
+        }
+
+        .radio-item:hover {
+            border-color: #0078d4;
+        }
+
+        .radio-item input[type="radio"] {
+            display: none;
+        }
+
+        .radio-item label {
+            color: #ccc;
+            font-size: 14px;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .radio-item.active {
+            border-color: #0078d4;
+            background: rgba(0, 120, 212, 0.2);
+        }
+
+        .radio-item.active label {
+            color: #0078d4;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 120, 212, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-download {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            color: #fff;
+            margin-top: 10px;
+        }
+
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: #1a1a2e;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0078d4, #00c6fb);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-info {
+            color: #ccc;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .result-section {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .result-title {
+            color: #fff;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .file-list {
+            list-style: none;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: #1a1a2e;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #404060;
+        }
+
+        .file-name {
+            color: #fff;
+            font-size: 14px;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .download-btn {
+            background: #0078d4;
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-left: 10px;
+        }
+
+        .download-btn:hover {
+            background: #005a9e;
+        }
+
+        .play-btn {
+            background: #28a745;
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-left: 10px;
+        }
+
+        .play-btn:hover {
+            background: #1e7e34;
+        }
+
+        .play-btn.playing {
+            background: #dc3545;
+        }
+
+        .preview-btn {
+            background: #0078d4;
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+            white-space: nowrap;
+        }
+
+        .preview-btn:hover {
+            background: #005a9e;
+        }
+
+        .preview-btn.loading {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .voice-settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .voice-settings-left {
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding-right: 20px;
+        }
+
+        .voice-settings-right {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .voice-settings-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .voice-settings-left {
+                border-right: none;
+                padding-right: 0;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                padding-bottom: 15px;
+            }
+
+            .upload-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .upload-left {
+                border-right: none;
+                padding-right: 0;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                padding-bottom: 15px;
+            }
+        }
+
+        .upload-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .upload-left {
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding-right: 20px;
+        }
+
+        .upload-right {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .file-list-container {
+            background: rgba(220, 53, 69, 0.15);
+            border: 1px solid rgba(220, 53, 69, 0.5);
+            border-radius: 8px;
+            padding: 12px;
+            min-height: 150px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .file-list-container .no-files {
+            color: #888;
+            font-size: 14px;
+            text-align: center;
+            padding-top: 40px;
+        }
+
+        .file-item-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            margin-bottom: 5px;
+            color: #ff4757;
+            font-size: 14px;
+        }
+
+        .file-item-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .file-remove-btn {
+            background: transparent;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0 5px;
+        }
+
+        .file-remove-btn:hover {
+            color: #ff4757;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 5px;
+            border-radius: 10px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: #888;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .tab.active {
+            background: #007bff;
+            color: #fff;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .error-message {
+            background: rgba(220, 53, 69, 0.2);
+            border: 1px solid #dc3545;
+            border-radius: 8px;
+            padding: 12px;
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .info-box {
+            background: rgba(0, 120, 212, 0.15);
+            border: 1px solid rgba(0, 120, 212, 0.5);
+            border-left: 4px solid #0078d4;
+            border-radius: 8px;
+            padding: 14px 18px;
+            color: #a0c4ff;
+            font-size: 14px;
+            line-height: 1.8;
+            margin-top: 18px;
+        }
+
+        .info-box code {
+            background: rgba(0, 120, 212, 0.3);
+            color: #00c6fb;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .success-message {
+            background: rgba(40, 167, 69, 0.2);
+            border: 1px solid #28a745;
+            border-radius: 8px;
+            padding: 12px;
+            color: #28a745;
+            font-size: 14px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .radio-group {
+                flex-direction: column;
+            }
+
+            .radio-item {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📢 文本语音转换</h1>
+            <p>上传文本文件，选择语音，生成高质量语音文件</p>
+            <div class="version">{% if version %}{{ version }}{% endif %}</div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-panel="tts-panel">🗣️ 文本转语音</button>
+            <button class="tab" data-panel="recognize-panel">🎤 语音识别</button>
+        </div>
+
+        <div class="tab-panel active" id="tts-panel">
+            <div class="card">
+                <div class="card-title">📁 语音合成</div>
+                <div class="upload-grid">
+                    <div class="upload-left">
+                        <div class="form-group">
+                            <label>选择文本文件 (.txt)</label>
+                            <div class="file-upload" id="file-upload">
+                                <i>📄</i>
+                                <span>点击或拖拽文本文件到这里</span>
+                                <small>支持多选文件</small>
+                            </div>
+                            <input type="file" id="file-input" multiple accept=".txt">
+                        </div>
+                    </div>
+                    <div class="upload-right">
+                        <div class="form-group">
+                            <label>已选文件列表</label>
+                            <div id="selected-files" class="file-list-container">
+                                <div class="no-files">暂无文件</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-box">
+                    💡 <strong>停顿语法：</strong>在文本中用 <code>{pause=500}</code> 插入停顿，数字为毫秒。<br>
+                    例如：<code>第一句话{pause=1000}停顿1秒后的内容</code>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">🎙️ 语音设置</div>
+
+                <div class="voice-settings-grid">
+                    <div class="voice-settings-left">
+                        <div class="form-group">
+                            <label>选择语音</label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <select id="voice-select" style="flex: 1;">
+                                    {% for voice_id, voice_name in voices.items() %}
+                                    <option value="{{ voice_id }}">{{ voice_name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button id="preview-btn" class="preview-btn">🔊 预览</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="voice-settings-right">
+                        <div class="form-group">
+                            <label>语速</label>
+                            <div class="radio-group">
+                                <div class="radio-item" data-value="slow">
+                                    <input type="radio" name="rate" value="slow">
+                                    <label>减慢</label>
+                                </div>
+                                <div class="radio-item active" data-value="normal">
+                                    <input type="radio" name="rate" value="normal" checked>
+                                    <label>正常</label>
+                                </div>
+                                <div class="radio-item" data-value="fast">
+                                    <input type="radio" name="rate" value="fast">
+                                    <label>加快</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>音量</label>
+                            <div class="radio-group">
+                                <div class="radio-item" data-value="quiet">
+                                    <input type="radio" name="volume" value="quiet">
+                                    <label>减小</label>
+                                </div>
+                                <div class="radio-item active" data-value="normal">
+                                    <input type="radio" name="volume" value="normal" checked>
+                                    <label>正常</label>
+                                </div>
+                                <div class="radio-item" data-value="loud">
+                                    <input type="radio" name="volume" value="loud">
+                                    <label>增大</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>输出格式</label>
+                            <div class="radio-group">
+                                <div class="radio-item active" data-value="mp3">
+                                    <input type="radio" name="format" value="mp3" checked>
+                                    <label>MP3</label>
+                                </div>
+                                <div class="radio-item" data-value="wav">
+                                    <input type="radio" name="format" value="wav">
+                                    <label>WAV</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <button class="btn btn-primary" id="convert-btn">🚀 开始转换</button>
+
+                <div class="progress-container" id="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <div class="progress-info" id="progress-info">准备中...</div>
+                </div>
+
+                <div class="error-message" id="error-message"></div>
+
+                <div class="result-section" id="result-section">
+                    <div class="result-title">✅ 转换完成</div>
+                    <ul class="file-list" id="file-list"></ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-panel" id="recognize-panel">
+            <div class="card">
+                <div class="card-title">🎤 语音识别（Whisper）</div>
+
+                <div class="upload-grid">
+                    <div class="upload-left">
+                        <div class="form-group">
+                            <label>选择音频文件 (.mp3, .wav, .flac, .m4a)</label>
+                            <div class="file-upload" id="audio-upload">
+                                <i>🎵</i>
+                                <span>点击或拖拽音频文件到这里</span>
+                                <small>支持多选文件</small>
+                            </div>
+                            <input type="file" id="audio-input" multiple accept=".mp3,.wav,.flac,.m4a,.ogg">
+                        </div>
+                    </div>
+                    <div class="upload-right">
+                        <div class="form-group">
+                            <label>已选文件列表</label>
+                            <div id="selected-audio-files" class="file-list-container">
+                                <div class="no-files">暂无文件</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" id="recognize-btn">🔍 开始识别</button>
+
+                <div class="progress-container" id="recognize-progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="recognize-progress-fill"></div>
+                    </div>
+                    <div class="progress-info" id="recognize-progress-info">准备中...</div>
+                </div>
+
+                <div class="error-message" id="recognize-error-message"></div>
+
+                <div class="result-section" id="recognize-result-section">
+                    <div class="result-title">✅ 识别完成</div>
+                    <div id="recognize-results"></div>
+                    <ul class="file-list" id="recognize-file-list"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                const panelId = tab.dataset.panel;
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                document.getElementById(panelId).classList.add('active');
+            });
+        });
+
+        const fileUpload = document.getElementById('file-upload');
+        const fileInput = document.getElementById('file-input');
+        const selectedFiles = document.getElementById('selected-files');
+        const convertBtn = document.getElementById('convert-btn');
+        const progressContainer = document.getElementById('progress-container');
+        const progressFill = document.getElementById('progress-fill');
+        const progressInfo = document.getElementById('progress-info');
+        const resultSection = document.getElementById('result-section');
+        const fileList = document.getElementById('file-list');
+        const errorMessage = document.getElementById('error-message');
+
+        const radioItems = document.querySelectorAll('.radio-item');
+        const previewBtn = document.getElementById('preview-btn');
+        let previewAudio = null;
+
+        previewBtn.addEventListener('click', async () => {
+            const voice = document.getElementById('voice-select').value;
+            const rate = document.querySelector('input[name="rate"]:checked').value;
+            const volume = document.querySelector('input[name="volume"]:checked').value;
+
+            if (previewAudio) {
+                previewAudio.pause();
+                previewAudio = null;
+                previewBtn.textContent = '🔊 预览';
+                previewBtn.classList.remove('loading');
+                return;
+            }
+
+            previewBtn.disabled = true;
+            previewBtn.textContent = '⏳ 生成中...';
+            previewBtn.classList.add('loading');
+
+            try {
+                const formData = new FormData();
+                formData.append('voice', voice);
+                formData.append('rate', rate);
+                formData.append('volume', volume);
+
+                const response = await fetch('/api/preview', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error || '预览生成失败');
+                }
+
+                const blob = await response.blob();
+                const audioUrl = URL.createObjectURL(blob);
+
+                previewAudio = new Audio(audioUrl);
+                previewAudio.onended = () => {
+                    previewBtn.textContent = '🔊 预览';
+                    previewBtn.classList.remove('loading');
+                    previewBtn.disabled = false;
+                    previewAudio = null;
+                };
+
+                previewAudio.onerror = () => {
+                    showError('音频播放失败');
+                    previewBtn.textContent = '🔊 预览';
+                    previewBtn.classList.remove('loading');
+                    previewBtn.disabled = false;
+                    previewAudio = null;
+                };
+
+                previewAudio.onloadeddata = () => {
+                    previewBtn.textContent = '⏹️ 停止';
+                    previewBtn.classList.remove('loading');
+                    previewBtn.disabled = false;
+                    previewAudio.play();
+                };
+
+            } catch (error) {
+                showError(error.message);
+                previewBtn.textContent = '🔊 预览';
+                previewBtn.classList.remove('loading');
+                previewBtn.disabled = false;
+            }
+        });
+
+        radioItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const group = item.parentElement;
+                group.querySelectorAll('.radio-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                item.querySelector('input').checked = true;
+            });
+        });
+
+        fileUpload.addEventListener('click', () => fileInput.click());
+
+        fileUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUpload.classList.add('dragover');
+        });
+
+        fileUpload.addEventListener('dragleave', () => {
+            fileUpload.classList.remove('dragover');
+        });
+
+        fileUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUpload.classList.remove('dragover');
+            fileInput.files = e.dataTransfer.files;
+            updateFileList();
+        });
+
+        fileInput.addEventListener('change', updateFileList);
+
+        function updateFileList() {
+            const files = fileInput.files;
+            if (files.length === 0) {
+                selectedFiles.innerHTML = '<div class="no-files">暂无文件</div>';
+                fileUpload.classList.remove('has-file');
+                return;
+            }
+
+            selectedFiles.innerHTML = '';
+            Array.from(files).forEach((file, index) => {
+                const row = document.createElement('div');
+                row.className = 'file-item-row';
+
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = file.name;
+                nameSpan.title = file.name;
+
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'file-remove-btn';
+                removeBtn.textContent = '×';
+                removeBtn.title = '移除文件';
+                removeBtn.addEventListener('click', () => {
+                    removeFile(index);
+                });
+
+                row.appendChild(nameSpan);
+                row.appendChild(removeBtn);
+                selectedFiles.appendChild(row);
+            });
+
+            fileUpload.classList.add('has-file');
+        }
+
+        function removeFile(index) {
+            const files = Array.from(fileInput.files);
+            files.splice(index, 1);
+
+            const dataTransfer = new DataTransfer();
+            files.forEach(file => dataTransfer.items.add(file));
+            fileInput.files = dataTransfer.files;
+
+            updateFileList();
+        }
+
+        convertBtn.addEventListener('click', async () => {
+            const files = fileInput.files;
+            if (files.length === 0) {
+                showError('请选择文件');
+                return;
+            }
+
+            const formData = new FormData();
+            Array.from(files).forEach(file => formData.append('files', file));
+
+            formData.append('voice', document.getElementById('voice-select').value);
+            formData.append('rate', document.querySelector('input[name="rate"]:checked').value);
+            formData.append('volume', document.querySelector('input[name="volume"]:checked').value);
+            formData.append('format', document.querySelector('input[name="format"]:checked').value);
+
+            convertBtn.disabled = true;
+            convertBtn.textContent = '转换中...';
+            progressContainer.style.display = 'block';
+            resultSection.style.display = 'none';
+            errorMessage.style.display = 'none';
+            progressFill.style.width = '0%';
+            progressInfo.textContent = '提交任务...';
+
+            try {
+                const response = await fetch('/api/convert', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || '转换失败');
+                }
+
+                const taskId = data.task_id;
+                await pollStatus(taskId);
+
+            } catch (error) {
+                showError(error.message);
+                convertBtn.disabled = false;
+                convertBtn.textContent = '🚀 开始转换';
+                progressContainer.style.display = 'none';
+            }
+        });
+
+        async function pollStatus(taskId) {
+            const interval = setInterval(async () => {
+                try {
+                    const response = await fetch(`/api/status/${taskId}`);
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.error || '任务不存在');
+                    }
+
+                    progressFill.style.width = `${data.progress}%`;
+
+                    if (data.status === 'processing') {
+                        progressInfo.textContent = `正在转换: ${data.current_file || ''} (${data.progress}%)`;
+                    } else if (data.status === 'completed') {
+                        clearInterval(interval);
+                        progressInfo.textContent = '转换完成!';
+                        showResult(data.output_files);
+                        convertBtn.disabled = false;
+                        convertBtn.textContent = '🚀 开始转换';
+                    } else if (data.status === 'error') {
+                        clearInterval(interval);
+                        throw new Error(data.error || '转换出错');
+                    }
+                } catch (error) {
+                    clearInterval(interval);
+                    showError(error.message);
+                    convertBtn.disabled = false;
+                    convertBtn.textContent = '🚀 开始转换';
+                }
+            }, 1000);
+        }
+
+        let currentAudio = null;
+        let currentPlayBtn = null;
+
+        function showResult(outputFiles) {
+            fileList.innerHTML = '';
+
+            outputFiles.forEach(file => {
+                const li = document.createElement('li');
+                li.className = 'file-item';
+
+                const span = document.createElement('span');
+                span.className = 'file-name';
+                span.textContent = file;
+
+                const playBtn = document.createElement('button');
+                playBtn.className = 'play-btn';
+                playBtn.textContent = '▶️ 播放';
+                playBtn.addEventListener('click', () => {
+                    togglePlay(file, playBtn);
+                });
+
+                const downloadBtn = document.createElement('button');
+                downloadBtn.className = 'download-btn';
+                downloadBtn.textContent = '下载';
+                downloadBtn.addEventListener('click', () => {
+                    window.location.href = `/api/download/${encodeURIComponent(file)}`;
+                });
+
+                li.appendChild(span);
+                li.appendChild(playBtn);
+                li.appendChild(downloadBtn);
+                fileList.appendChild(li);
+            });
+
+            resultSection.style.display = 'block';
+        }
+
+        async function togglePlay(filename, btn) {
+            const audioUrl = `/api/download/${encodeURIComponent(filename)}`;
+
+            if (currentAudio && currentAudio.src.endsWith(audioUrl)) {
+                if (currentAudio.paused) {
+                    currentAudio.play();
+                    btn.textContent = '⏹️ 停止';
+                    btn.classList.add('playing');
+                } else {
+                    currentAudio.pause();
+                    currentAudio.currentTime = 0;
+                    currentAudio = null;
+                    btn.textContent = '▶️ 播放';
+                    btn.classList.remove('playing');
+                    currentPlayBtn = null;
+                }
+                return;
+            }
+
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                currentAudio = null;
+                if (currentPlayBtn) {
+                    currentPlayBtn.textContent = '▶️ 播放';
+                    currentPlayBtn.classList.remove('playing');
+                    currentPlayBtn = null;
+                }
+            }
+
+            btn.textContent = '⏳ 加载中...';
+            btn.disabled = true;
+
+            try {
+                currentAudio = new Audio(audioUrl);
+
+                currentAudio.onloadeddata = () => {
+                    btn.disabled = false;
+                    btn.textContent = '⏹️ 停止';
+                    btn.classList.add('playing');
+                    currentPlayBtn = btn;
+                    currentAudio.play();
+                };
+
+                currentAudio.onended = () => {
+                    btn.textContent = '▶️ 播放';
+                    btn.classList.remove('playing');
+                    currentPlayBtn = null;
+                    currentAudio = null;
+                };
+
+                currentAudio.onerror = () => {
+                    btn.disabled = false;
+                    btn.textContent = '▶️ 播放';
+                    showError('音频播放失败');
+                    currentAudio = null;
+                };
+
+            } catch (error) {
+                btn.disabled = false;
+                btn.textContent = '▶️ 播放';
+                showError('音频加载失败');
+            }
+        }
+
+        function showError(message, isRecognize = false) {
+            const el = isRecognize ? document.getElementById('recognize-error-message') : errorMessage;
+            el.textContent = message;
+            el.style.display = 'block';
+        }
+
+        const audioUpload = document.getElementById('audio-upload');
+        const audioInput = document.getElementById('audio-input');
+        const selectedAudioFiles = document.getElementById('selected-audio-files');
+        const recognizeBtn = document.getElementById('recognize-btn');
+        const recognizeProgressContainer = document.getElementById('recognize-progress-container');
+        const recognizeProgressFill = document.getElementById('recognize-progress-fill');
+        const recognizeProgressInfo = document.getElementById('recognize-progress-info');
+        const recognizeResultSection = document.getElementById('recognize-result-section');
+        const recognizeResults = document.getElementById('recognize-results');
+        const recognizeFileList = document.getElementById('recognize-file-list');
+
+        audioUpload.addEventListener('click', () => audioInput.click());
+
+        audioUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            audioUpload.classList.add('dragover');
+        });
+
+        audioUpload.addEventListener('dragleave', () => {
+            audioUpload.classList.remove('dragover');
+        });
+
+        audioUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            audioUpload.classList.remove('dragover');
+            audioInput.files = e.dataTransfer.files;
+            updateAudioFileList();
+        });
+
+        audioInput.addEventListener('change', updateAudioFileList);
+
+        function updateAudioFileList() {
+            const files = audioInput.files;
+            if (files.length === 0) {
+                selectedAudioFiles.innerHTML = '<div class="no-files">暂无文件</div>';
+                audioUpload.classList.remove('has-file');
+                return;
+            }
+
+            selectedAudioFiles.innerHTML = '';
+            Array.from(files).forEach((file, index) => {
+                const row = document.createElement('div');
+                row.className = 'file-item-row';
+
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = file.name;
+                nameSpan.title = file.name;
+
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'file-remove-btn';
+                removeBtn.textContent = '×';
+                removeBtn.title = '移除文件';
+                removeBtn.addEventListener('click', () => {
+                    removeAudioFile(index);
+                });
+
+                row.appendChild(nameSpan);
+                row.appendChild(removeBtn);
+                selectedAudioFiles.appendChild(row);
+            });
+
+            audioUpload.classList.add('has-file');
+        }
+
+        function removeAudioFile(index) {
+            const files = Array.from(audioInput.files);
+            files.splice(index, 1);
+
+            const dataTransfer = new DataTransfer();
+            files.forEach(file => dataTransfer.items.add(file));
+            audioInput.files = dataTransfer.files;
+
+            updateAudioFileList();
+        }
+
+        recognizeBtn.addEventListener('click', async () => {
+            const files = audioInput.files;
+            if (files.length === 0) {
+                showError('请选择音频文件', true);
+                return;
+            }
+
+            const formData = new FormData();
+            Array.from(files).forEach(file => formData.append('files', file));
+
+            recognizeBtn.disabled = true;
+            recognizeBtn.textContent = '识别中...';
+            recognizeProgressContainer.style.display = 'block';
+            recognizeResultSection.style.display = 'none';
+            document.getElementById('recognize-error-message').style.display = 'none';
+            recognizeProgressFill.style.width = '0%';
+            recognizeProgressInfo.textContent = '提交任务...';
+
+            try {
+                const response = await fetch('/api/recognize', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || '识别失败');
+                }
+
+                const taskId = data.task_id;
+                await pollRecognizeStatus(taskId);
+
+            } catch (error) {
+                showError(error.message, true);
+                recognizeBtn.disabled = false;
+                recognizeBtn.textContent = '🔍 开始识别';
+                recognizeProgressContainer.style.display = 'none';
+            }
+        });
+
+        async function pollRecognizeStatus(taskId) {
+            const interval = setInterval(async () => {
+                try {
+                    const response = await fetch(`/api/recognize_status/${taskId}`);
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.error || '任务不存在');
+                    }
+
+                    if (data.status === 'completed') {
+                        clearInterval(interval);
+                        recognizeProgressFill.style.width = '100%';
+                        recognizeProgressInfo.textContent = '识别完成';
+                        showRecognizeResult(data.transcripts);
+                        recognizeBtn.disabled = false;
+                        recognizeBtn.textContent = '🔍 开始识别';
+                    } else if (data.status === 'error') {
+                        clearInterval(interval);
+                        showError(data.error, true);
+                        recognizeProgressContainer.style.display = 'none';
+                        recognizeBtn.disabled = false;
+                        recognizeBtn.textContent = '🔍 开始识别';
+                    } else {
+                        recognizeProgressFill.style.width = `${data.progress}%`;
+                        recognizeProgressInfo.textContent = data.current_file ?
+                            `识别中: ${data.current_file} (${data.progress}%)` :
+                            `处理中 (${data.progress}%)`;
+                    }
+                } catch (error) {
+                    clearInterval(interval);
+                    showError(error.message, true);
+                    recognizeProgressContainer.style.display = 'none';
+                    recognizeBtn.disabled = false;
+                    recognizeBtn.textContent = '🔍 开始识别';
+                }
+            }, 2000);
+        }
+
+        function showRecognizeResult(transcripts) {
+            recognizeResults.innerHTML = '';
+            recognizeFileList.innerHTML = '';
+
+            for (const [filename, result] of Object.entries(transcripts)) {
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'recognize-result-item';
+                resultDiv.innerHTML = `
+                    <div style="font-weight: bold; color: #007bff; margin-bottom: 5px;">📄 ${filename}</div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; font-size: 14px; line-height: 1.6; color: #ffffff;">
+                        ${result.text}
+                    </div>
+                `;
+                recognizeResults.appendChild(resultDiv);
+
+                const li = document.createElement('li');
+                li.className = 'file-item';
+
+                const span = document.createElement('span');
+                span.className = 'file-name';
+                span.textContent = result.output_file;
+
+                const txtBtn = document.createElement('button');
+                txtBtn.className = 'download-btn';
+                txtBtn.textContent = '下载TXT';
+                txtBtn.addEventListener('click', () => {
+                    window.location.href = `/api/download/${encodeURIComponent(result.output_file)}`;
+                });
+
+                const srtBtn = document.createElement('button');
+                srtBtn.className = 'download-btn';
+                srtBtn.style.marginLeft = '5px';
+                srtBtn.textContent = '下载SRT';
+                srtBtn.addEventListener('click', () => {
+                    window.location.href = `/api/download/${encodeURIComponent(result.srt_file)}`;
+                });
+
+                li.appendChild(span);
+                li.appendChild(txtBtn);
+                li.appendChild(srtBtn);
+                recognizeFileList.appendChild(li);
+            }
+
+            recognizeResultSection.style.display = 'block';
+        }
+    </script>
+</body>
+
+</html>

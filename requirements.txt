@@ -1,0 +1,43 @@
+# pip install -r requirements.txt
+# Edge TTS (微软免费TTS,推荐)
+# mkdir -p ~/.cache/whisper/
+# wget -O ~/.cache/whisper/small.pt https://www.modelscope.cn/api/v1/models/openai-mirror/whisper-small/repo/files?file=small.pt
+
+edge-tts>=6.1.0
+
+# WebSocket支持
+websocket-client>=1.6.0
+
+# Flask Web框架
+Flask>=3.0.0
+
+# GUI依赖 (tkinter通常已内置)
+# tkinter - Python标准库,无需安装
+
+# PyQt6 (可选,用于更现代的GUI界面)
+PyQt6>=6.6.0
+
+# 音频播放
+pygame>=2.5.0
+
+# ============================================
+# 以下为可选依赖(如需要阿里云TTS请取消注释)
+# ============================================
+
+# # 阿里云TTS依赖
+# # NLS SDK - 从GitHub安装
+# git+https://github.com/aliyun/alibabacloud-nls-python-sdk.git
+# aliyun-python-sdk-core>=2.13.36
+# aliyun-python-sdk-nls-cloud-meta>=0.0.4
+
+# 语音识别 (Whisper + 繁简体转换)
+openai-whisper>=20231117
+zhconv>=1.4.0
+wget>=3.2
+
+# 音频处理 (生成静音)
+lameenc>=1.6.1
+
+# Coqui TTS (开源本地TTS,可选)
+# 注意: 安装较大,首次运行需要下载模型
+# TTS>=0.22.0
